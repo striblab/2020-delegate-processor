@@ -3,9 +3,11 @@ from xml.dom import minidom
 
 # First parse AP delegate data
 data_by_state = {}
-mydoc = minidom.parse('xml/delstate.xml')
+mydoc = minidom.parse('xml/delstate_testdata.xml')
 
-states = mydoc.getElementsByTagName('State')
+dems = mydoc.getElementsByTagName('del')[0]
+
+states = dems.getElementsByTagName('State')
 candidate_list = []
 
 for state in states:
