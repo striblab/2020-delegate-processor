@@ -3,7 +3,7 @@ from xml.dom import minidom
 
 # First parse AP delegate data
 data_by_state = {}
-mydoc = minidom.parse('xml/delstate_testdata.xml')
+mydoc = minidom.parse('xml/delstate.xml')
 
 dems = mydoc.getElementsByTagName('del')[0]
 
@@ -20,7 +20,6 @@ for state in states:
         # Make sure it's in the candidate list (not all states have every candidate)
         if candidate_lname not in candidate_list:
             candidate_list.append(candidate_lname)
-
 
         data_by_state[state_id][candidate_lname] = candidate.attributes['dTot'].value
 
@@ -42,6 +41,11 @@ candidate_running_delegate_total = {candidate: 0 for candidate in candidate_list
 
 data_by_date_cumulative = []
 
+# Make an initial starting point with 0s
+start_date_obj = {'date': '02/01/2020'}
+start_date_obj.update(candidate_running_delegate_total)
+data_by_date_cumulative.append(start_date_obj)
+
 for date, candidates in data_by_date.items():
     date_obj = {
         'date': date
@@ -52,7 +56,7 @@ for date, candidates in data_by_date.items():
         date_obj[c] = candidate_running_delegate_total[c]
     data_by_date_cumulative.append(date_obj)
 
-print(data_by_date_cumulative)
+# print(data_by_date_cumulative)
 out_csv = csv.DictWriter(
     open('csv/delegates_cumulative.csv', 'w'),
     fieldnames=data_by_date_cumulative[0].keys()
