@@ -1,4 +1,5 @@
 import csv
+from datetime import datetime
 from xml.dom import minidom
 
 # First parse AP delegate data
@@ -46,20 +47,41 @@ start_date_obj = {'date': '02/01/2020'}
 start_date_obj.update(candidate_running_delegate_total)
 data_by_date_cumulative.append(start_date_obj)
 
-for date, candidates in data_by_date.items():
-    date_obj = {
-        'date': date
-    }
-    for c, value in candidates.items():
-        # As you go through each date add new values to cumulative total
-        candidate_running_delegate_total[c] += value
-        date_obj[c] = candidate_running_delegate_total[c]
-    data_by_date_cumulative.append(date_obj)
 
-# print(data_by_date_cumulative)
+today = datetime.today()
+print("Now: {}".format(today.strftime('%m/%d/%Y')))
+for date, candidates in data_by_date.items():
+    # only take dates in the past, ignore future contests
+    parsed_date = datetime.strptime(date, '%m/%d/%Y')
+    if parsed_date <= today:
+        print(parsed_date)
+        date_obj = {
+            'date': date
+        }
+        for c, value in candidates.items():
+            # As you go through each date add new values to cumulative total
+            candidate_running_delegate_total[c] += value
+            date_obj[c] = candidate_running_delegate_total[c]
+        data_by_date_cumulative.append(date_obj)
+
+# Find candidates with more than zero cumulative delegates
+final_candidate_list = []
+last_row = data_by_date_cumulative[-1]
+for cand, total in last_row.items():
+    if cand != 'date':
+        if total > 0:
+            final_candidate_list.append(cand)
+
+# Assemble final data, filtering out candidates with zero delegates
+final_data = []
+for date_row in data_by_date_cumulative:
+    output_row = {'date': date_row['date']}
+    output_row.update({c: date_row[c] for c in final_candidate_list})
+    final_data.append(output_row)
+
 out_csv = csv.DictWriter(
     open('csv/delegates_cumulative.csv', 'w'),
-    fieldnames=data_by_date_cumulative[0].keys()
+    fieldnames=final_data[0].keys()
 )
 out_csv.writeheader()
-out_csv.writerows(data_by_date_cumulative)
+out_csv.writerows(final_data)
