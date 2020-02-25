@@ -1,4 +1,5 @@
 import csv
+import sys
 from datetime import datetime
 from xml.dom import minidom
 
@@ -24,8 +25,13 @@ for state in states:
 
         data_by_state[state_id][candidate_lname] = candidate.attributes['dTot'].value
 
-# Now grab primary dates
-data_by_date = {}
+# Now grab primary dates. Use OrderedDict if it's python v less than 3.7, as on the EC2 box
+if sys.version_info.major < 3 or (sys.version_info.major == 3 and sys.version_info.minor < 7):
+    from collections import OrderedDict
+    data_by_date = OrderedDict()
+else:
+    data_by_date = {}
+
 primary_dates = csv.DictReader(open('csv/primary_dates.csv', 'r'))
 
 # First, make non-cumulative data by date
@@ -36,6 +42,9 @@ for row in primary_dates:
     state_data = data_by_state[row['StateAbb']]
     for cand, delegates in state_data.items():
         data_by_date[row['Date']][cand] += int(delegates)
+
+print(data_by_date)
+
 
 # Now make an object to keep a running total
 candidate_running_delegate_total = {candidate: 0 for candidate in candidate_list}
