@@ -43,9 +43,6 @@ for row in primary_dates:
     for cand, delegates in state_data.items():
         data_by_date[row['Date']][cand] += int(delegates)
 
-print(data_by_date)
-
-
 # Now make an object to keep a running total
 candidate_running_delegate_total = {candidate: 0 for candidate in candidate_list}
 
@@ -58,12 +55,12 @@ data_by_date_cumulative.append(start_date_obj)
 
 
 today = datetime.today()
-print("Now: {}".format(today.strftime('%m/%d/%Y')))
+# print("Now: {}".format(today.strftime('%m/%d/%Y')))
 for date, candidates in data_by_date.items():
     # only take dates in the past, ignore future contests
     parsed_date = datetime.strptime(date, '%m/%d/%Y')
     if parsed_date <= today:
-        print(parsed_date)
+        # print(parsed_date)
         date_obj = {
             'date': date
         }
