@@ -3,6 +3,12 @@ import sys
 from datetime import datetime
 from xml.dom import minidom
 
+# When candidates drop out and should stop accumulating delegates. If the stop date is 3/3/2020, for example, delegates for the 3/3/2020 contest will be counted, but any delegates from a theoretical 3/4/2020 contest will not.
+stop_counting_dates = {
+    'Klobuchar': datetime.strptime('03/03/2020', '%m/%d/%Y'),
+    'Buttigieg': datetime.strptime('03/03/2020', '%m/%d/%Y'),
+}
+
 # First parse AP delegate data
 data_by_state = {}
 mydoc = minidom.parse('xml/delstate.xml')
@@ -82,7 +88,17 @@ for cand, total in last_row.items():
 final_data = []
 for date_row in data_by_date_cumulative:
     output_row = {'date': date_row['date']}
-    output_row.update({c: date_row[c] for c in final_candidate_list})
+    for c in final_candidate_list:
+        # Check if this candidate has dropped out and if this is after their stop counting date
+        try:
+            stop_date = stop_counting_dates[c]
+            bool_stop = datetime.strptime(date_row['date'], '%m/%d/%Y') > stop_date
+        except:
+            bool_stop = False
+        if not bool_stop:
+            output_row[c] = date_row[c]
+
+    # output_row.update({c: date_row[c] for c in final_candidate_list if date_row['date'] < })
     final_data.append(output_row)
 
 out_csv = csv.DictWriter(
