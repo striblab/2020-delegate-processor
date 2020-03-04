@@ -46,7 +46,7 @@ for row in primary_dates:
     state_date_row['delegates_projected'] = delegates_projected_total
     state_out_list.append(state_date_row)
 
-print(state_out_list)
+# print(state_out_list)
 out_csv = csv.DictWriter(
     open('csv/delegates_by_state.csv', 'w'),
     fieldnames=state_out_list[0].keys()
